@@ -111,19 +111,6 @@ while True:
 
     keys = pygame.key.get_pressed()
 
-    # at the moment the left mouse is clicked (not while held down), increase the jump factor and print the new jump factor ONCE
-    # at the moment the right mouse is clicked (not while held down), decrease the jump factor and print the new jump factor ONCE
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        if event.button == 1: # left mouse button
-            JUMP_FACTOR = 14
-            print(f"Jump Factor: {JUMP_FACTOR}")
-        elif event.button == 2: # middle mouse button
-            JUMP_FACTOR = 15
-            print(f"Jump Factor: {JUMP_FACTOR}")
-        elif event.button == 3:
-            JUMP_FACTOR = 16
-            print(f"Jump Factor: {JUMP_FACTOR}")
-
     # Movement
     if keys[pygame.K_a]:
         player.move(-5)
