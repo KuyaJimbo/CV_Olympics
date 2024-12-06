@@ -22,7 +22,7 @@ pose_dictionary = {
 }
 
 # Parameters for jump detection
-update_interval = 0.1  # 100 ms
+update_interval = 0.3  # 100 ms
 jump_cooldown = 1  # Cooldown period in seconds
 last_update_time = time.time()
 last_jump_time = 0
@@ -150,12 +150,13 @@ def GetJumpPower():
     """
     jump_value = sum(any(pose_dictionary[key]) for key in pose_dictionary)
 
-    if jump_value == 5:
-        return 16
-    elif jump_value >= 3:
-        return 15
-    else:
-        return 14
+    # if jump_value == 5:
+    #     return 16
+    # elif jump_value >= 3:
+    #     return 15
+    # else:
+    #     return 14
+    return jump_value
 
 
 def GetBlockType(landmarks):
@@ -307,7 +308,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
                 )
 
             # Hide the face by adding a black circle over the nose for the Demo
-            cv2.circle(image, (int(landmarks[mp_pose.PoseLandmark.NOSE].x * image.shape[1]), int(landmarks[mp_pose.PoseLandmark.NOSE].y * image.shape[0])), 50, (0, 0, 0), -1)
+            cv2.circle(image, (int(landmarks[mp_pose.PoseLandmark.NOSE].x * image.shape[1]), int(landmarks[mp_pose.PoseLandmark.NOSE].y * image.shape[0])), 35, (0, 0, 0), -1)
             
             # Draw pose landmarks
             mp_drawing.draw_landmarks(
