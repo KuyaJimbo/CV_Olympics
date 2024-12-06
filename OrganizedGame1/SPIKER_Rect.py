@@ -22,7 +22,7 @@ class SPIKER_RECT(pygame.sprite.Sprite):
         self.aiming = ""
         self.speed = 5
 
-    def move(self, ball, upper_rect):
+    def move(self, ball):
         """Move the SPIKER_RECT to follow the ball horizontally and handle jumping."""
         if not self.stunned:
             # Keep the SPIKER_RECT in line with the ball, but not lower than its original position
