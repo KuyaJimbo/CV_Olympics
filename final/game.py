@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 import random
+from cv_controller import PoseController  # Import the new PoseController
 
 # Initialize Pygame
 pygame.init()
@@ -74,6 +75,10 @@ class VolleyballGame:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Volleyball Blocking")
 
+        # Initialize CV Controller
+        self.pose_controller = PoseController()
+        self.pose_controller.start_camera()
+
         # Game objects
         self.player = Player()
         self.ball = Ball()
@@ -118,62 +123,41 @@ class VolleyballGame:
     def run(self):
         running = True
         while running:
+            # if kill block occured, after 3 seconds, reset the game
+            if self.kill_block_active and time.time() - self.kill_block_start_time > 3:
+                self.reset_game()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                # if right mouse button is clicked, recalculate the baselines for the player
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                    self.pose_controller.baseline_set = False
+                    print("Recalculating baselines...")
             
-            current_time = time.time()
-            
-            if self.kill_block_active:
-                # Automatically reset after 3 seconds
-                if current_time - self.kill_block_start_time >= 3:
-                    self.reset_game()
-
-    # def run(self):
-    #     running = True
-    #     while running:
-    #         for event in pygame.event.get():
-    #             if event.type == pygame.QUIT:
-    #                 running = False
-                
-    #             if self.kill_block_active:
-    #                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:  # Right click
-    #                     self.reset_game()
+            # Get controls from pose controller
+            cv_controls = self.pose_controller.get_player_controls()
 
             if not self.game_paused:
-                # Regular game controls
-                keys = pygame.key.get_pressed()
+                # Player movement based on camera x position
+                screen_x = cv_controls['move_x'] * SCREEN_WIDTH
+                self.player.rect.centerx = screen_x
 
-                # Movement
-                if keys[pygame.K_a]:
-                    self.player.move(-5)
-                if keys[pygame.K_d]:
-                    self.player.move(5)
-                if keys[pygame.K_SPACE]:
-                    self.player.jump_by_factor(JUMP_FACTOR)
+                # Jumping based on CV detection
+                if cv_controls['jump']:
+                    self.player.jump_by_factor(cv_controls['jump_power'])
 
-                # Blocking Poses
-                if keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]:
-                    self.player.set_pose("B_SplitBlock")
-                    self.player.BLOCKTYPE = "Split"
-                elif keys[pygame.K_LEFT]:
-                    self.player.set_pose("B_LeftBlock")
-                    self.player.BLOCKTYPE = "Left"
-                elif keys[pygame.K_RIGHT]:
-                    self.player.set_pose("B_RightBlock")
-                    self.player.BLOCKTYPE = "Right"
-                elif keys[pygame.K_UP]:
-                    self.player.set_pose("B_MiddleBlock")
-                    self.player.BLOCKTYPE = "Middle"
-                elif keys[pygame.K_DOWN]:
-                    self.player.set_pose("B_KneesBent")
-                    self.player.BLOCKTYPE = "None"
-                elif keys[pygame.K_s]:
-                    self.player.set_pose("B_Bump")
-                    self.player.BLOCKTYPE = "None"
-                else:
-                    self.player.set_pose("B_Idle")
-                    self.player.BLOCKTYPE = "None"
+                # Blocking poses based on CV detection
+                block_mapping = {
+                    "Left": "B_LeftBlock",
+                    "Right": "B_RightBlock", 
+                    "Middle": "B_MiddleBlock",
+                    "Split": "B_SplitBlock",
+                    "None": "B_Idle"
+                }
+                block_type = cv_controls['block_type']
+                self.player.set_pose(block_mapping.get(block_type, "B_Idle"))
+                self.player.BLOCKTYPE = block_type if block_type != "None" else "None"
 
                 # Update player
                 self.player.update()
@@ -217,13 +201,10 @@ class VolleyballGame:
                 # draw player
                 self.player.draw(self.screen)
                 pygame.draw.circle(self.screen, GRAY, self.ball.rect.center, BALL_RADIUS)
-
-
             
             lower_sprites = pygame.sprite.Group(self.npc_lower)
             lower_sprites.draw(self.screen)
             # self.npc_lower.draw(self.screen)
-            
 
             # Draw block box if any block pose is active
             if self.player.BLOCKTYPE != "None":
@@ -239,6 +220,8 @@ class VolleyballGame:
             pygame.display.flip()
             self.clock.tick(60)
 
+        # Clean up camera when game ends
+        self.pose_controller.stop_camera()
         pygame.quit()
         sys.exit()
 
