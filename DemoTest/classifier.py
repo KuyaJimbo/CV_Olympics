@@ -86,14 +86,14 @@ def CheckHeadLowered(landmarks, threshold=0.6):
     nose = landmarks[mp_pose.PoseLandmark.NOSE]
     return nose.y > Baseline_FloorY + (Baseline_Height * threshold)
 
-def CheckKneesBent(landmarks, threshold=0.7):
+def CheckKneesBent(landmarks, threshold=0.2):
     """
     Check if knees are bent below baseline.
     """
     left_knee = landmarks[mp_pose.PoseLandmark.LEFT_KNEE]
     right_knee = landmarks[mp_pose.PoseLandmark.RIGHT_KNEE]
     avg_knee_y = (left_knee.y + right_knee.y) / 2
-    return avg_knee_y > Baseline_FloorY + (Baseline_KneeLevel * threshold)
+    return avg_knee_y > Baseline_KneeLevel + (abs(Baseline_KneeLevel - Baseline_FloorY) * threshold)
 
 def CheckHandsBelowKnees(landmarks):
     """
@@ -306,6 +306,9 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
                     2,
                 )
 
+            # Hide the face by adding a black circle over the nose for the Demo
+            cv2.circle(image, (int(landmarks[mp_pose.PoseLandmark.NOSE].x * image.shape[1]), int(landmarks[mp_pose.PoseLandmark.NOSE].y * image.shape[0])), 50, (0, 0, 0), -1)
+            
             # Draw pose landmarks
             mp_drawing.draw_landmarks(
                 image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS

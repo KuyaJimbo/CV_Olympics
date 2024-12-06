@@ -172,11 +172,13 @@ class PoseController:
             landmarks[self.mp_pose.PoseLandmark.NOSE].y > 
             self.Baseline_FloorY + (self.Baseline_Height * 0.5)
         )
+        
         self.pose_dictionary["KneesBent"].append(
             (landmarks[self.mp_pose.PoseLandmark.LEFT_KNEE].y + 
-             landmarks[self.mp_pose.PoseLandmark.RIGHT_KNEE].y) / 2 > 
-            self.Baseline_FloorY + (self.Baseline_KneeLevel * 0.7)
+             landmarks[self.mp_pose.PoseLandmark.RIGHT_KNEE].y) / 2 >
+            self.Baseline_FloorY + abs(self.Baseline_KneeLevel - self.Baseline_FloorY) * 0.2
         )
+
         self.pose_dictionary["HandsBelowKnees"].append(
             (landmarks[self.mp_pose.PoseLandmark.LEFT_WRIST].y < 
              landmarks[self.mp_pose.PoseLandmark.LEFT_KNEE].y) and
