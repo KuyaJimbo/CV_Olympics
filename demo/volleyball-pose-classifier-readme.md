@@ -45,8 +45,6 @@ pip install pygame opencv-python mediapipe numpy
 - Webcam (recommended)
 - Pip package manager
 
-[... rest of the previous README content remains the same ...]
-
 ## Project Structure
 
 - `classifier.py`: Main classifier using webcam input
