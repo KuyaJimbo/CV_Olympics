@@ -25,7 +25,8 @@ class PoseController:
         }
 
         # Parameters for jump and block detection
-        self.update_interval = 0.1  # 100 ms # TOO SLOW, THE GAME WILL THINK YOUR ARE TELEPORTING!
+        # Too slow or fast and the game will lag
+        self.update_interval = 0.1
         self.last_update_time = time.time()
         self.last_jump_time = 0
         
