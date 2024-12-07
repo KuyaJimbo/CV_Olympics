@@ -80,25 +80,16 @@ def CheckDetectJump(landmarks):
 
 
 def CheckHeadLowered(landmarks, threshold=0.6):
-    """
-    Check if head is lowered below baseline.
-    """
     nose = landmarks[mp_pose.PoseLandmark.NOSE]
     return nose.y > Baseline_FloorY + (Baseline_Height * threshold)
 
 def CheckKneesBent(landmarks, threshold=0.2):
-    """
-    Check if knees are bent below baseline.
-    """
     left_knee = landmarks[mp_pose.PoseLandmark.LEFT_KNEE]
     right_knee = landmarks[mp_pose.PoseLandmark.RIGHT_KNEE]
     avg_knee_y = (left_knee.y + right_knee.y) / 2
     return avg_knee_y > Baseline_KneeLevel + (abs(Baseline_KneeLevel - Baseline_FloorY) * threshold)
 
 def CheckHandsBelowKnees(landmarks):
-    """
-    Check if hands are below knees.
-    """
     left_hand = landmarks[mp_pose.PoseLandmark.LEFT_WRIST]
     right_hand = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST]
     left_knee = landmarks[mp_pose.PoseLandmark.LEFT_KNEE]
@@ -106,9 +97,6 @@ def CheckHandsBelowKnees(landmarks):
     return left_hand.y > left_knee.y and right_hand.y > right_knee.y
 
 def CheckHandsBelowHips(landmarks):
-    """
-    Check if hands are below hips.
-    """
     left_hand = landmarks[mp_pose.PoseLandmark.LEFT_WRIST]
     right_hand = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST]
     left_hip = landmarks[mp_pose.PoseLandmark.LEFT_HIP]
@@ -116,9 +104,6 @@ def CheckHandsBelowHips(landmarks):
     return left_hand.y > left_hip.y and right_hand.y > right_hip.y
 
 def CheckHandsBelowShoulders(landmarks):
-    """
-    Check if hands are below shoulders.
-    """
     left_hand = landmarks[mp_pose.PoseLandmark.LEFT_WRIST]
     right_hand = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST]
     left_shoulder = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER]
@@ -149,13 +134,6 @@ def GetJumpPower():
     Calculate jump power based on pose checks.
     """
     jump_value = sum(any(pose_dictionary[key]) for key in pose_dictionary)
-
-    # if jump_value == 5:
-    #     return 16
-    # elif jump_value >= 3:
-    #     return 15
-    # else:
-    #     return 14
     return jump_value
 
 
